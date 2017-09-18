@@ -6,6 +6,8 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.CountDownLatch;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -15,8 +17,18 @@ public class WordPanel extends JPanel implements Runnable {
 		private WordRecord[] words;
 		private int noWords;
 		private int maxY;
+                private int counter = 0;
+                private boolean[] availableWords;
 
-		
+		public synchronized void useWord(){
+                    
+                    while (availableWords[counter]==true){
+                        counter++;
+                    }
+                    
+                    availableWords[counter] = true;
+                    //counter--;
+                }
 		public void paintComponent(Graphics g) {
 		    int width = getWidth();
 		    int height = getHeight();
@@ -29,25 +41,46 @@ public class WordPanel extends JPanel implements Runnable {
 		   //draw the words
 		   //animation must be added 
 		    for (int i=0;i<noWords;i++){	    	
-		    	//g.drawString(words[i].getWord(),words[i].getX(),words[i].getY());	
+		    	//gdrawString(words[i].getWord(),words[i].getX(),words[i].getY());	
 		    	g.drawString(words[i].getWord(),words[i].getX(),words[i].getY()+20);  //y-offset for skeleton so that you can see the words	
 		    }
-		   
 		  }
 		
 		WordPanel(WordRecord[] words, int maxY) {
 			this.words=words; //will this work?
 			noWords = words.length;
 			done=false;
-			this.maxY=maxY;		
+			this.maxY=maxY;
+                        availableWords = new boolean[words.length];
+                        for (int i = 0; i < words.length; i++){
+                            availableWords[i] = false;
+                        }
 		}
 		
 		public void run() {
 			//add in code to animate this
-                        for (int i = 0; i < words.length; i++){
-                            
-                            words[i].drop(2);
-                        }
+                        //for (int i = 0; i < words.length; i++){
+                            //Thread b = new Thread(words[i]);
+                            //words[i].drop(5);
+                            //counter ++;
+                            useWord();
+                            System.out.println(counter);
+                            while (words[counter].dropped()==false){
+                                System.out.println(counter+"entered while loop");
+                                words[counter].drop(10);
+                                //repaint();
+                                //try {
+                                    System.out.println(counter+" it tried");
+                                    //Thread.sleep(words[counter].getSpeed());
+                                    repaint();
+                                /*} catch (InterruptedException ex) {
+                                    System.out.println("caught errors");
+                                    Logger.getLogger(WordPanel.class.getName()).log(Level.SEVERE, null, ex);
+                                }*/
+                            }
+                            //repaint();
+                        //}
+                       // paintComponent();
 		}
 
 	}

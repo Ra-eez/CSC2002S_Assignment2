@@ -138,7 +138,7 @@ public static String[] getDictFromFile(String filename) {
                 //this was added by me
                 Scanner sc = new Scanner(System.in);
                 
-                String line = "10 2 example_dict.txt";
+                String line = "10 5 example_dict.txt";
                 String[] lineinfo = line.split(" ");
                 //this is the end of the addition
                 
@@ -161,8 +161,15 @@ public static String[] getDictFromFile(String filename) {
 		
 		setupGUI(frameX, frameY, yLimit);  
     	//Start WordPanel thread - for redrawing animation
-                w.start();
-                
+        Thread[] threadList = new Thread[noWords];
+        
+        for (int i = 0; i < noWords; i++){
+            threadList[i] = new Thread(w);   
+            //while(done == false){
+            threadList[i].start();
+        }    
+                //setupGUI(frameX, frameY, yLimit);
+            //}
 		int x_inc=(int)frameX/noWords;
 	  	//initialize shared array of current words
 
