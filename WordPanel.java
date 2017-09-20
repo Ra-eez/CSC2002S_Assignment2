@@ -19,8 +19,10 @@ public class WordPanel extends JPanel implements Runnable {
 		private int maxY;
                 private int counter = 0;
                 private boolean[] availableWords;
+                private static Score score;
+                //private int usedWord;
 
-		public synchronized void useWord(){
+		public synchronized int useWord(){
                     
                     while (availableWords[counter]==true){
                         counter++;
@@ -28,6 +30,15 @@ public class WordPanel extends JPanel implements Runnable {
                     
                     availableWords[counter] = true;
                     //counter--;
+                    return counter;
+                }
+                public void wordMatch(String text){
+                 //   if (words[usedWord].matchWord(text)){
+                 for (int i = 0; i < noWords; i++){
+                     if (words[i].matchWord(text)){
+                         words[i].resetWord();
+                        repaint();
+                    }}
                 }
 		public void paintComponent(Graphics g) {
 		    int width = getWidth();
@@ -46,11 +57,12 @@ public class WordPanel extends JPanel implements Runnable {
 		    }
 		  }
 		
-		WordPanel(WordRecord[] words, int maxY) {
+		WordPanel(WordRecord[] words, int maxY, Score score) {
 			this.words=words; //will this work?
 			noWords = words.length;
 			done=false;
 			this.maxY=maxY;
+                        this.score = score;
                         availableWords = new boolean[words.length];
                         for (int i = 0; i < words.length; i++){
                             availableWords[i] = false;
@@ -59,30 +71,32 @@ public class WordPanel extends JPanel implements Runnable {
 		
 		public void run() {
 			//add in code to animate this
-                        //for (int i = 0; i < words.length; i++){
-                            //Thread b = new Thread(words[i]);
-                            //words[i].drop(5);
-                            //counter ++;
-                            useWord();
-                            System.out.println(counter);
-                            while (words[counter].dropped()==false){
-                                System.out.println(counter+"entered while loop");
-                                words[counter].drop(10);
-                                //repaint();
-                                //try {
-                                    System.out.println(counter+" it tried");
-                                    //Thread.sleep(words[counter].getSpeed());
-                                    repaint();
-                                /*} catch (InterruptedException ex) {
-                                    System.out.println("caught errors");
+                            //useWord();
+                            int usedWord = useWord();
+                          //  System.out.println(usedWord + "");
+                          //  System.out.println(words[usedWord].getWord());
+                            
+                            while (words[usedWord].dropped()==false){
+                                
+                                words[usedWord].drop(10);
+                               // System.out.println(usedWord + "but its hereeeeee");
+                               try {
+                                   
+                                    Thread.sleep(words[usedWord].getSpeed());
+                                    repaint(); 
+                                    
+                                } catch (InterruptedException ex) {
                                     Logger.getLogger(WordPanel.class.getName()).log(Level.SEVERE, null, ex);
-                                }*/
+                                }
+                                if (words[usedWord].dropped()==true){
+                                    words[usedWord].resetWord();
+                                    score.missedWord();
+                                    repaint();
                             }
-                            //repaint();
-                        //}
-                       // paintComponent();
+                            
 		}
 
 	}
+}
 
 

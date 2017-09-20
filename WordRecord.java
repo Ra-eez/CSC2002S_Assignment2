@@ -98,7 +98,7 @@ public class WordRecord{
 
 	public synchronized  void drop(int inc) {
 		setY(y+inc);
-                System.out.println(text+"dropped atleast once");
+               // System.out.println(text+"dropped atleast once");
 	}
 	
 	public synchronized  boolean dropped() {
