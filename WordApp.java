@@ -27,11 +27,10 @@ public class WordApp {
 	static WordRecord[] words;
 	static volatile boolean done;  //must be volatile
 	static 	Score score = new Score();
-        static GUIUpdater guiupdater;
 
 	static WordPanel w;
 	
-	//static Thread[] threadList;
+	
 	
 	public static void setupGUI(int frameX,int frameY,int yLimit) {
 		// Frame init and dimensions
@@ -59,19 +58,19 @@ public class WordApp {
 	    txt.add(scr);
     
 	    //[snip]
-            
+  
 	    final JTextField textEntry = new JTextField("",20);
 	   textEntry.addActionListener(new ActionListener()
 	    {
 	      public void actionPerformed(ActionEvent evt) {
 	          String text = textEntry.getText();
 	          //[snip]
-                  System.out.println("got here");
-                  //for(int i = 0; i < noWords; i++){
-                 //     threadList[i].wordMatch(text);
-                 w.wordMatch(text);
-              //}
-                          
+                  for (int i = 0; i < noWords; i++){
+                      if (words[i].getWord().equals(text)){
+                          score.caughtWord(text.length());
+                          words[i].resetWord();
+                      }
+                  }
 	          textEntry.setText("");
 	          textEntry.requestFocus();
 	      }
@@ -118,16 +117,7 @@ public class WordApp {
 
 		
 	}
-public static void updateGUI(){
-    JPanel txt = new JPanel();
-	    txt.setLayout(new BoxLayout(txt, BoxLayout.LINE_AXIS)); 
-	    JLabel caught =new JLabel("Caught: " + score.getCaught() + "    ");
-	    JLabel missed =new JLabel("Missed:" + score.getMissed()+ "    ");
-	    JLabel scr =new JLabel("Score:" + score.getScore()+ "    ");    
-	    txt.add(caught);
-	    txt.add(missed);
-	    txt.add(scr);
-}
+
 	
 public static String[] getDictFromFile(String filename) {
 		String [] dictStr = null;
@@ -151,8 +141,7 @@ public static String[] getDictFromFile(String filename) {
 
 	public static void main(String[] args) {
     	 
-                
-              //  guiupdater = new GUIUpdater(this);
+//                GUIUpdater gu = new GUIUpdater(this);
                 //this was added by me
                 Scanner sc = new Scanner(System.in);
                 
@@ -177,8 +166,8 @@ public static String[] getDictFromFile(String filename) {
 		
 		//[snip]
 		
-		setupGUI(frameX, frameY, yLimit); 
-                
+		setupGUI(frameX, frameY, yLimit);  
+    	
                 //setupGUI(frameX, frameY, yLimit);
             //}
 		int x_inc=(int)frameX/noWords;
@@ -187,8 +176,7 @@ public static String[] getDictFromFile(String filename) {
 		for (int i=0;i<noWords;i++) {
 			words[i]=new WordRecord(dict.getNewWord(),i*x_inc,yLimit);
 		}
-
-    	//Start WordPanel thread - for redrawing animation
+//Start WordPanel thread - for redrawing animation
         Thread[] threadList = new Thread[noWords];
         
         for (int i = 0; i < noWords; i++){

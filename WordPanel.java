@@ -19,7 +19,7 @@ public class WordPanel extends JPanel implements Runnable {
 		private int maxY;
                 private int counter = 0;
                 private boolean[] availableWords;
-                private static Score score;
+                private Score score;
                 //private int usedWord;
 
 		public synchronized int useWord(){
@@ -71,24 +71,29 @@ public class WordPanel extends JPanel implements Runnable {
 		
 		public void run() {
 			//add in code to animate this
-                            //useWord();
+                        
                             int usedWord = useWord();
-                          //  System.out.println(usedWord + "");
-                          //  System.out.println(words[usedWord].getWord());
+//                            System.out.println(usedWord + "");
+//                            System.out.println(words[usedWord].getWord());
                             
                             while (words[usedWord].dropped()==false){
                                 
                                 words[usedWord].drop(10);
-                               // System.out.println(usedWord + "but its hereeeeee");
+//                                System.out.println(usedWord + "but its hereeeeee");
+
                                try {
                                    
+//                                   System.out.println(usedWord+"tried");
                                     Thread.sleep(words[usedWord].getSpeed());
                                     repaint(); 
                                     
                                 } catch (InterruptedException ex) {
                                     Logger.getLogger(WordPanel.class.getName()).log(Level.SEVERE, null, ex);
                                 }
+                               
                                 if (words[usedWord].dropped()==true){
+                                    
+//                                    System.out.println("reached btm");
                                     words[usedWord].resetWord();
                                     score.missedWord();
                                     repaint();
