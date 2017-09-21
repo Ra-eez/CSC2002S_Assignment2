@@ -81,12 +81,10 @@ public class WordRecord{
 		text=dict.getNewWord();
 		dropped=false;
 		fallingSpeed=(int)(Math.random() * (maxWait-minWait)+minWait); 
-		//System.out.println(getWord() + " falling speed = " + getSpeed());
 
 	}
 	
 	public synchronized boolean matchWord(String typedText) {
-		//System.out.println("Matching against: "+text);
 		if (typedText.equals(this.text)) {
 			resetWord();
 			return true;
@@ -98,11 +96,15 @@ public class WordRecord{
 
 	public synchronized  void drop(int inc) {
 		setY(y+inc);
-//                System.out.println(text+"dropped atleast once");
 	}
 	
 	public synchronized  boolean dropped() {
 		return dropped;
 	}
-
+        
+        //sets the word to blank and stops it from moving
+        public synchronized void wordEnd(){
+            text = "";
+            fallingSpeed = 0;
+        }
 }

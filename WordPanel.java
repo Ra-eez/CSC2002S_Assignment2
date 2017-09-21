@@ -20,26 +20,19 @@ public class WordPanel extends JPanel implements Runnable {
                 private int counter = 0;
                 private boolean[] availableWords;
                 private Score score;
-                //private int usedWord;
 
+                //find the first available word in "words"
 		public synchronized int useWord(){
                     
+                    //find the position of the first available WordRecord
                     while (availableWords[counter]==true){
                         counter++;
                     }
-                    
+                    //set this value to true (represents occupied)
                     availableWords[counter] = true;
-                    //counter--;
                     return counter;
                 }
-                public void wordMatch(String text){
-                 //   if (words[usedWord].matchWord(text)){
-                 for (int i = 0; i < noWords; i++){
-                     if (words[i].matchWord(text)){
-                         words[i].resetWord();
-                        repaint();
-                    }}
-                }
+             
 		public void paintComponent(Graphics g) {
 		    int width = getWidth();
 		    int height = getHeight();
@@ -72,18 +65,24 @@ public class WordPanel extends JPanel implements Runnable {
 		public void run() {
 			//add in code to animate this
                         
+                            //get first available "WordRecord"
                             int usedWord = useWord();
-//                            System.out.println(usedWord + "");
-//                            System.out.println(words[usedWord].getWord());
                             
+                            //this keeps looping until the program reaches the max words
+                            //or till the max amount of words are reached
                             while (words[usedWord].dropped()==false){
                                 
+                                //exits loop if the exit button was pressed
+                                if (words[usedWord].getWord().equals("")){
+                                    break;
+                                }
+                                
+                                //drops the word
                                 words[usedWord].drop(10);
-//                                System.out.println(usedWord + "but its hereeeeee");
 
                                try {
                                    
-//                                   System.out.println(usedWord+"tried");
+//                                  //sleeps for the duration of the word's speed then paints it
                                     Thread.sleep(words[usedWord].getSpeed());
                                     repaint(); 
                                     
@@ -91,9 +90,14 @@ public class WordPanel extends JPanel implements Runnable {
                                     Logger.getLogger(WordPanel.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                                
+                               //resets the the word and adds to the score if the word has reached the red zone
                                 if (words[usedWord].dropped()==true){
                                     
-//                                    System.out.println("reached btm");
+                                    //exits if exit button was pressed
+                                    if (words[usedWord].getWord().equals("")){
+                                    break;
+                                }
+                                    
                                     words[usedWord].resetWord();
                                     score.missedWord();
                                     repaint();

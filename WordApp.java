@@ -14,27 +14,30 @@ import java.util.concurrent.*;
 //model is separate from the view.
 
 public class WordApp {
-//shared variables
-	static int noWords=4;
-	static int totalWords;
+    
+    //shared variables
+    static int noWords=4;
+    static int totalWords;
 
-   	static int frameX=1000;
-	static int frameY=600;
-	static int yLimit=480;
+    static int frameX=1000;
+    static int frameY=600;
+    static int yLimit=480;
 
-	static WordDictionary dict = new WordDictionary(); //use default dictionary, to read from file eventually
+    static WordDictionary dict = new WordDictionary(); //use default dictionary, to read from file eventually
 
-	static WordRecord[] words;
-	static volatile boolean done;  //must be volatile
-	static 	Score score = new Score();
-
-	static WordPanel w;
+    static WordRecord[] words;
+    static volatile boolean done;  //must be volatile
+    static WordPanel w;
+    
+    //my added variables
+    static Thread[] threadList;
+    static Score score = new Score();
 	
 	
-	
-	public static void setupGUI(int frameX,int frameY,int yLimit) {
-		// Frame init and dimensions
-    	JFrame frame = new JFrame("WordGame"); 
+    public static void setupGUI(int frameX,int frameY,int yLimit) {
+		
+        // Frame init and dimensions
+        JFrame frame = new JFrame("WordGame"); 
     	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     	frame.setSize(frameX, frameY);
     	
@@ -43,32 +46,33 @@ public class WordApp {
       	g.setSize(frameX,frameY);
  
     	
-		w = new WordPanel(words,yLimit,score);
-		w.setSize(frameX,yLimit+100);
-	    g.add(w);
+        w = new WordPanel(words,yLimit,score);
+        w.setSize(frameX,yLimit+100);
+        g.add(w);
 	    
 	    
-	    JPanel txt = new JPanel();
-	    txt.setLayout(new BoxLayout(txt, BoxLayout.LINE_AXIS)); 
-	    JLabel caught =new JLabel("Caught: " + score.getCaught() + "    ");
-	    JLabel missed =new JLabel("Missed:" + score.getMissed()+ "    ");
-	    JLabel scr =new JLabel("Score:" + score.getScore()+ "    ");    
-	    txt.add(caught);
-	    txt.add(missed);
-	    txt.add(scr);
-    
-	    //[snip]
+        JPanel txt = new JPanel();
+        txt.setLayout(new BoxLayout(txt, BoxLayout.LINE_AXIS)); 
+        JLabel caught =new JLabel("Caught: " + score.getCaught() + "    ");
+        JLabel missed =new JLabel("Missed:" + score.getMissed()+ "    ");
+        JLabel scr =new JLabel("Score:" + score.getScore()+ "    ");    
+        txt.add(caught);
+        txt.add(missed);
+        txt.add(scr);
   
-	    final JTextField textEntry = new JTextField("",20);
-	   textEntry.addActionListener(new ActionListener()
+	final JTextField textEntry = new JTextField("",20);
+	textEntry.addActionListener(new ActionListener()
 	    {
-	      public void actionPerformed(ActionEvent evt) {
-	          String text = textEntry.getText();
-	          //[snip]
+	    public void actionPerformed(ActionEvent evt) {
+	        String text = textEntry.getText();
+                
+                //loops through all the wordrecords in the list of word records 
+                //and if the word equals the uder inputted word, then the wordrecord will reset and the frame will repaint
                   for (int i = 0; i < noWords; i++){
                       if (words[i].getWord().equals(text)){
                           score.caughtWord(text.length());
                           words[i].resetWord();
+                          frame.repaint();
                       }
                   }
 	          textEntry.setText("");
@@ -100,12 +104,31 @@ public class WordApp {
 			    {
 			      public void actionPerformed(ActionEvent e)
 			      {
+                                  
+                                  // perform the wordEnd method on all the words
+                                  for (int i = 0; i < noWords; i++){
+                                      
+                                      words[i].wordEnd();
+                                  }
 			    	  //[snip]
 			      }
 			    });
-		
+                // added quit button
+		JButton quitB = new JButton("Quit");;
+			
+				// add the listener to the jbutton to handle the "pressed" event
+				quitB.addActionListener(new ActionListener()
+			    {
+			      public void actionPerformed(ActionEvent e)
+			      {
+                                  System.exit(0);
+                                  }
+			    	  //[snip]
+			      
+			    });
 		b.add(startB);
 		b.add(endB);
+                b.add(quitB);
 		
 		g.add(b);
     	
@@ -117,7 +140,16 @@ public class WordApp {
 
 		
 	}
-
+public void scoreUpdate(){
+    JPanel txt = new JPanel();
+	    txt.setLayout(new BoxLayout(txt, BoxLayout.LINE_AXIS)); 
+	    JLabel caught =new JLabel("Caught: " + score.getCaught() + "    ");
+	    JLabel missed =new JLabel("Missed:" + score.getMissed()+ "    ");
+	    JLabel scr =new JLabel("Score:" + score.getScore()+ "    ");    
+	    txt.add(caught);
+	    txt.add(missed);
+	    txt.add(scr);
+}
 	
 public static String[] getDictFromFile(String filename) {
 		String [] dictStr = null;
@@ -145,7 +177,7 @@ public static String[] getDictFromFile(String filename) {
                 //this was added by me
                 Scanner sc = new Scanner(System.in);
                 
-                String line = "10 5 example_dict.txt";
+                String line = "3 5 example_dict.txt";
                 String[] lineinfo = line.split(" ");
                 //this is the end of the addition
                 
@@ -164,25 +196,25 @@ public static String[] getDictFromFile(String filename) {
 		
 		words = new WordRecord[noWords];  //shared array of current words
 		
-		//[snip]
-		
 		setupGUI(frameX, frameY, yLimit);  
-    	
-                //setupGUI(frameX, frameY, yLimit);
-            //}
+                
 		int x_inc=(int)frameX/noWords;
+                
 	  	//initialize shared array of current words
-
 		for (int i=0;i<noWords;i++) {
 			words[i]=new WordRecord(dict.getNewWord(),i*x_inc,yLimit);
 		}
-//Start WordPanel thread - for redrawing animation
-        Thread[] threadList = new Thread[noWords];
+                
+            //Start WordPanel thread - for redrawing animation
+            
+            //Create list of all the threads needed
+            threadList = new Thread[noWords];
         
-        for (int i = 0; i < noWords; i++){
-            threadList[i] = new Thread(w);   
-            //while(done == false){
-            threadList[i].start();
+            for (int i = 0; i < noWords; i++){
+                
+                // create and start each thread
+                threadList[i] = new Thread(w); 
+                threadList[i].start();
         }    
 
 	}
