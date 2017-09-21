@@ -32,12 +32,15 @@ public class WordApp {
     //my added variables
     static Thread[] threadList;
     static Score score = new Score();
-	
+    static JFrame frame = new JFrame("WordGame"); 
+    //JLabel caught = new JLabel("Caught: " + score.getCaught() + "    ");
+    //JLabel missed =new JLabel("Missed:" + score.getMissed()+ "    ");
+    //JLabel scr =new JLabel("Score:" + score.getScore()+ "    ");    	
 	
     public static void setupGUI(int frameX,int frameY,int yLimit) {
 		
         // Frame init and dimensions
-        JFrame frame = new JFrame("WordGame"); 
+       // JFrame frame = new JFrame("WordGame"); 
     	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     	frame.setSize(frameX, frameY);
     	
@@ -140,15 +143,107 @@ public class WordApp {
 
 		
 	}
-public void scoreUpdate(){
-    JPanel txt = new JPanel();
-	    txt.setLayout(new BoxLayout(txt, BoxLayout.LINE_AXIS)); 
-	    JLabel caught =new JLabel("Caught: " + score.getCaught() + "    ");
-	    JLabel missed =new JLabel("Missed:" + score.getMissed()+ "    ");
-	    JLabel scr =new JLabel("Score:" + score.getScore()+ "    ");    
-	    txt.add(caught);
-	    txt.add(missed);
-	    txt.add(scr);
+public static void scoreUpdate(){
+    //JFrame frame = new JFrame("WordGame"); 
+  	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    	frame.setSize(frameX, frameY);
+    	
+      	JPanel g = new JPanel();
+        g.setLayout(new BoxLayout(g, BoxLayout.PAGE_AXIS)); 
+      	g.setSize(frameX,frameY);
+ 
+    	
+        //w = new WordPanel(words,yLimit,score);
+        w.setSize(frameX,yLimit+100);
+        g.add(w);
+	    
+	    
+        JPanel txt = new JPanel();
+        txt.setLayout(new BoxLayout(txt, BoxLayout.LINE_AXIS)); 
+        JLabel caught =new JLabel("Caught: " + score.getCaught() + "    ");
+        JLabel missed =new JLabel("Missed:" + score.getMissed()+ "    ");
+        JLabel scr =new JLabel("Score:" + score.getScore()+ "    ");    
+        txt.add(caught);
+        txt.add(missed);
+        txt.add(scr);
+  
+	final JTextField textEntry = new JTextField("",20);
+	textEntry.addActionListener(new ActionListener()
+	    {
+	    public void actionPerformed(ActionEvent evt) {
+	        String text = textEntry.getText();
+                
+                //loops through all the wordrecords in the list of word records 
+                //and if the word equals the uder inputted word, then the wordrecord will reset and the frame will repaint
+                  for (int i = 0; i < noWords; i++){
+                      if (words[i].getWord().equals(text)){
+                          score.caughtWord(text.length());
+                          words[i].resetWord();
+       //                   frame.repaint();
+                      }
+                  }
+	          textEntry.setText("");
+	          textEntry.requestFocus();
+	      }
+	    });
+	   
+	   txt.add(textEntry);
+	   txt.setMaximumSize( txt.getPreferredSize() );
+	   g.add(txt);
+	    
+	    JPanel b = new JPanel();
+        b.setLayout(new BoxLayout(b, BoxLayout.LINE_AXIS)); 
+	   	JButton startB = new JButton("Start");;
+		
+			// add the listener to the jbutton to handle the "pressed" event
+			startB.addActionListener(new ActionListener()
+		    {
+		      public void actionPerformed(ActionEvent e)
+		      {
+		    	  //[snip]
+		    	  textEntry.requestFocus();  //return focus to the text entry field
+		      }
+		    });
+		JButton endB = new JButton("End");;
+			
+				// add the listener to the jbutton to handle the "pressed" event
+				endB.addActionListener(new ActionListener()
+			    {
+			      public void actionPerformed(ActionEvent e)
+			      {
+                                  
+                                  // perform the wordEnd method on all the words
+                                  for (int i = 0; i < noWords; i++){
+                                      
+                                      words[i].wordEnd();
+                                  }
+			    	  //[snip]
+			      }
+			    });
+                // added quit button
+		JButton quitB = new JButton("Quit");;
+			
+				// add the listener to the jbutton to handle the "pressed" event
+				quitB.addActionListener(new ActionListener()
+			    {
+			      public void actionPerformed(ActionEvent e)
+			      {
+                                  System.exit(0);
+                                  }
+			    	  //[snip]
+			      
+			    });
+		b.add(startB);
+		b.add(endB);
+                b.add(quitB);
+		
+		g.add(b);
+    	
+      	frame.setLocationRelativeTo(null);  // Center window on screen.
+      	frame.add(g); //add contents to window
+        frame.setContentPane(g);     
+       	//frame.pack();  // don't do this - packs it into small space
+        frame.setVisible(true);
 }
 	
 public static String[] getDictFromFile(String filename) {
@@ -173,22 +268,20 @@ public static String[] getDictFromFile(String filename) {
 
 	public static void main(String[] args) {
     	 
-//                GUIUpdater gu = new GUIUpdater(this);
-                //this was added by me
-                Scanner sc = new Scanner(System.in);
-                
+                /*Scanner sc = new Scanner(System.in);
                 String line = "3 5 example_dict.txt";
+                String line = sc.next();
                 String[] lineinfo = line.split(" ");
-                //this is the end of the addition
-                
-		//deal with command line arguments(see lines with args commented out
-		//totalWords=Integer.parseInt(args[0]);  //total words to fall
                 totalWords=Integer.parseInt(lineinfo[0]);
-		//noWords=Integer.parseInt(args[1]); // total words falling at any point
-                noWords=Integer.parseInt(lineinfo[1]);
-		assert(totalWords>=noWords); // this could be done more neatly
-		//String[] tmpDict=getDictFromFile(args[2]); //file of words
-                String[] tmpDict=getDictFromFile(lineinfo[2]);
+                noWords=Integer.parseInt(lineinfo[1]);*/
+		
+                //deal with command line arguments
+		totalWords=Integer.parseInt(args[0]);  //total words to fall
+		noWords=Integer.parseInt(args[1]); // total words falling at any point
+                
+                assert(totalWords>=noWords); // this could be done more neatly
+		String[] tmpDict=getDictFromFile(args[2]); //file of words
+                //String[] tmpDict=getDictFromFile(lineinfo[2]);
 		if (tmpDict!=null)
 			dict= new WordDictionary(tmpDict);
 		

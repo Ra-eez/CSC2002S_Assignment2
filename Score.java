@@ -4,11 +4,13 @@ public class Score {
 	private int missedWords;
 	private int caughtWords;
 	private int gameScore;
+     //   static WordApp wordapp;
 	
 	Score() {
 		missedWords=0;
 		caughtWords=0;
 		gameScore=0;
+                
 	}
 	
 	public synchronized int getMissed() {
@@ -29,11 +31,14 @@ public class Score {
 	
 	public synchronized void missedWord() {
 		missedWords++;
+                //WordApp.setupGUI(WordApp.frameX, WordApp.frameY, WordApp.yLimit);
+                WordApp.scoreUpdate();
 	}
 
 	public synchronized void caughtWord(int length) {
 		caughtWords++;
 		gameScore+=length;
+                WordApp.scoreUpdate();
                 
 	}
 
